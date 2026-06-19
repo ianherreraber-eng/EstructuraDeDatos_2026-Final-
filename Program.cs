@@ -1,69 +1,72 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq; // Necesario para usar consultas avanzadas
 
-// 1. NUESTRO MODELO DE DATOS
-public class Producto
-{
-    public int ID { get; set; }
-    public string Nombre { get; set; } = string.Empty;
-    public double Precio { get; set; }
-    public int Cantidad { get; set; }
-
-    // Este método nos ayuda a imprimir el producto bonito en consola
-    public override string ToString()
-    {
-        return $"[{ID}] {Nombre} - ${Precio:F2} | Stock: {Cantidad}";
-    }
-}
-
-class Clase3_Colecciones
+class Clase4_Recursividad
 {
     static void Main()
     {
-        Console.WriteLine("=== Sistema de Inventario ===\n");
+        Console.WriteLine("=== Algoritmos Recursivos ===\n");
 
-        // 2. CREACIÓN DE LA LISTA DINÁMICA
-        // Inicializamos con 4 productos y luego agregamos un quinto
-        List<Producto> inventario = new List<Producto>
+        // --- MÓDULO 1: FACTORIAL ---
+        Console.Write("Ingresa un número para calcular su factorial (ej. 5): ");
+        if (int.TryParse(Console.ReadLine(), out int numFactorial))
         {
-            new Producto { ID = 1, Nombre = "Lenovo ThinkPad T14 Gen 2", Precio = 25000.00, Cantidad = 10 },
-            new Producto { ID = 2, Nombre = "Mouse Inalámbrico Razer", Precio = 899.00, Cantidad = 25 },
-            new Producto { ID = 3, Nombre = "Teclado Mecánico", Precio = 1299.00, Cantidad = 0 },
-            new Producto { ID = 4, Nombre = "Monitor Samsung 24\"", Precio = 4500.00, Cantidad = 5 }
-        };
-        // Agregando con el método .Add()
-        inventario.Add(new Producto { ID = 5, Nombre = "Audífonos Sony", Precio = 1200.00, Cantidad = 0 });
-
-        // 3. CONSULTAS LINQ (Ordenamiento y Filtrado)
-        Console.WriteLine("--- Productos ordenados por precio (Mayor a Menor) ---");
-        var porPrecio = inventario.OrderByDescending(p => p.Precio).ToList();
-        porPrecio.ForEach(p => Console.WriteLine(p));
-
-        Console.WriteLine("\n--- Productos Agotados ---");
-        var agotados = inventario.Where(p => p.Cantidad == 0).ToList();
-        agotados.ForEach(p => Console.WriteLine(p));
-
-        // 4. DICCIONARIO (Búsqueda hiper-rápida)
-        // Convertimos la lista a Diccionario usando el ID como llave
-        Dictionary<int, Producto> catalogo = inventario.ToDictionary(p => p.ID, p => p);
-
-        Console.Write("\nIngresa el ID del producto a buscar (ej. 3): ");
-        if (int.TryParse(Console.ReadLine(), out int idBuscado))
-        {
-            // TryGetValue busca la llave sin romper el programa si no existe
-            if (catalogo.TryGetValue(idBuscado, out Producto encontrado))
+            try
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"¡Encontrado!: {encontrado.Nombre}");
-                Console.ResetColor();
+                // Intentamos calcularlo
+                long resultado = CalcularFactorial(numFactorial);
+                Console.WriteLine($"El factorial de {numFactorial}! es = {resultado}");
             }
-            else
+            catch (ArgumentException ex)
             {
+                // Si la función lanza un error, lo atrapamos aquí sin que se cierre el programa
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: El ID no existe en el catálogo.");
+                Console.WriteLine($"Error: {ex.Message}");
                 Console.ResetColor();
             }
         }
+
+        // --- MÓDULO 2: FIBONACCI ---
+        Console.Write("\nIngresa la posición de la secuencia de Fibonacci a buscar (ej. 6): ");
+        if (int.TryParse(Console.ReadLine(), out int numFib))
+        {
+            try
+            {
+                long fib = GenerarFibonacci(numFib);
+                Console.WriteLine($"El número en la posición Fibonacci({numFib}) es = {fib}");
+            }
+            catch (ArgumentException ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.ResetColor();
+            }
+        }
+    }
+
+    // FUNCIÓN 1: FACTORIAL
+    static long CalcularFactorial(int n)
+    {
+        // 1. Validación (Defensa del programa)
+        if (n < 0) throw new ArgumentException("No existe el factorial de números negativos.");
+        
+        // 2. CASO BASE (Cuándo detenerse)
+        if (n == 0 || n == 1) return 1;
+        
+        // 3. CASO RECURSIVO (La función se llama a sí misma con n-1)
+        return n * CalcularFactorial(n - 1);
+    }
+
+    // FUNCIÓN 2: FIBONACCI
+    static long GenerarFibonacci(int n)
+    {
+        // 1. Validación
+        if (n < 0) throw new ArgumentException("La posición debe ser un número positivo.");
+        
+        // 2. CASOS BASE (Tiene dos casos base)
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+        
+        // 3. CASO RECURSIVO DOBLE (Suma de los dos anteriores)
+        return GenerarFibonacci(n - 1) + GenerarFibonacci(n - 2);
     }
 }
