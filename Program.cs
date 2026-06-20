@@ -1,60 +1,55 @@
 ﻿using System;
+using System.Numerics; 
 
-// 1. NUESTRO TIPO DE DATO PERSONALIZADO (Vive en el Stack, es ultraligero)
-public readonly struct CoordenadaGPS
-{
-    public double Latitud { get; }
-    public double Longitud { get; }
-
-    // Constructor con validación estricta
-    public CoordenadaGPS(double lat, double lon)
-    {
-        if (lat < -90 || lat > 90)
-            throw new ArgumentOutOfRangeException(nameof(lat), "La latitud debe estar entre -90 y 90 grados.");
-        if (lon < -180 || lon > 180)
-            throw new ArgumentOutOfRangeException(nameof(lon), "La longitud debe estar entre -180 y 180 grados.");
-
-        Latitud = lat;
-        Longitud = lon;
-    }
-
-    public void ImprimirUbicacion()
-    {
-        Console.WriteLine($"[GPS] Latitud: {Latitud:F4}°, Longitud: {Longitud:F4}°");
-    }
-}
-
-class Clase10_Structs
+class Clase8_Overflow
 {
     static void Main()
     {
-        Console.WriteLine("=== Sistema de Telemetría GPS ===\n");
+        Console.WriteLine("=== Demostración de Desbordamiento (Overflow) ===\n");
+        Console.WriteLine(" N | Factorial (Recursivo) | Factorial (Iterativo)");
+        Console.WriteLine("--------------------------------------------------");
 
-        try
+        for (int i = 1; i <= 15; i++)
         {
-            // 2. Creando coordenadas válidas
-            Console.WriteLine("--- Coordenada 1 (Sede Corporativa) ---");
-            CoordenadaGPS c1 = new CoordenadaGPS(19.4326, -99.1332);
-            c1.ImprimirUbicacion();
-
-            // Demostrando copia por valor (Stack)
-            Console.WriteLine("\n--- Coordenada 2 (Copia Independiente) ---");
-            CoordenadaGPS c2 = c1; 
-            // Aunque cambiemos de variable, como es un struct, c1 no se afecta.
-            c2 = new CoordenadaGPS(52.5200, 13.4050); 
-            c2.ImprimirUbicacion();
-
-            // 3. Forzando un error de telemetría
-            Console.WriteLine("\n--- Recibiendo datos corruptos del satélite... ---");
-            // Intentamos meter una latitud imposible (150 grados)
-            CoordenadaGPS coordError = new CoordenadaGPS(150.0, -99.1332);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("¡Alerta de Sistema! Se interceptó una coordenada inválida.");
-            Console.WriteLine($"Detalle técnico: {ex.Message}");
+            int resultadoRecursivo = FactorialInt(i);
+            int resultadoIterativo = FactorialIterativo(i);
+            
+            if (i >= 13) Console.ForegroundColor = ConsoleColor.Red;
+            
+            Console.WriteLine($"{i,2} | {resultadoRecursivo,21} | {resultadoIterativo,21}");
             Console.ResetColor();
         }
+
+        Console.WriteLine("\n=== Solución Profesional con BigInteger ===");
+        
+        BigInteger numeroMasivo = 100;
+        BigInteger resultadoSeguro = FactorialProfesional(numeroMasivo);
+        
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"\nEl factorial de 100! tiene más de 150 dígitos:");
+        Console.WriteLine(resultadoSeguro);
+        Console.ResetColor();
+    }
+
+    static int FactorialInt(int n)
+    {
+        if (n == 0 || n == 1) return 1;
+        return n * FactorialInt(n - 1);
+    }
+
+    static int FactorialIterativo(int n)
+    {
+        int resultado = 1;
+        for (int i = 2; i <= n; i++)
+        {
+            resultado *= i;
+        }
+        return resultado;
+    }
+
+    static BigInteger FactorialProfesional(BigInteger n)
+    {
+        if (n == 0 || n == 1) return BigInteger.One;
+        return n * FactorialProfesional(n - 1);
     }
 }
