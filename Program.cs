@@ -1,62 +1,62 @@
 ﻿using System;
+using System.Diagnostics; // Librería obligatoria para usar Stopwatch
 
-class Clase7_CallStack
+class Clase9_Memoization
 {
     static void Main()
     {
-        Console.WriteLine("=== Anatomía de la Recursividad (Call Stack) ===\n");
+        Console.WriteLine("=== Benchmark: Fuerza Bruta vs Memoization ===\n");
         
-        // EJERCICIO A: Cuenta Regresiva Visual
-        Console.WriteLine("--- Ejercicio A: Cuenta Regresiva Visual ---");
-        ImprimirCuentaRegresiva(3);
+        int n = 40; // Prueba con 40. Si pones 50 en Fuerza Bruta, tu PC podría congelarse.
+        Stopwatch sw = new Stopwatch();
+
+        // --- MÉTODO 1: FUERZA BRUTA ---
+        Console.WriteLine($"Calculando Fibonacci({n}) con Fuerza Bruta (Espera unos segundos)...");
+        sw.Restart();
+        long resultadoInseguro = FibonacciInseguro(n);
+        sw.Stop();
         
-        // EJERCICIO B: Suma Recursiva Segura
-        Console.WriteLine("\n--- Ejercicio B: Suma Recursiva Segura ---");
-        Console.Write("Introduce un número entero positivo para sumar hasta él: ");
-        
-        // Usamos TryParse para evitar que el programa truene si metes letras
-        if (int.TryParse(Console.ReadLine(), out int numero) && numero > 0)
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"[O(2^n)] Resultado: {resultadoInseguro} | Tiempo: {sw.ElapsedMilliseconds} ms\n");
+        Console.ResetColor();
+
+        // --- MÉTODO 2: MEMOIZATION (Caché) ---
+        // Inicializamos el arreglo de caché con puros -1 (que significa "vacío")
+        long[] cache = new long[n + 1];
+        for (int i = 0; i <= n; i++) 
         {
-            Console.WriteLine($"La suma recursiva desde 1 hasta {numero} es: {SumarHasta(numero)}");
+            cache[i] = -1;
         }
-        else
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error: Entrada inválida. Debes ingresar un número entero mayor a 0.");
-            Console.ResetColor();
-        }
+
+        Console.WriteLine($"Calculando Fibonacci({n}) con Memoization...");
+        sw.Restart();
+        long resultadoPro = FibonacciPro(n, cache);
+        sw.Stop();
+        
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"[O(n)]   Resultado: {resultadoPro} | Tiempo: {sw.ElapsedMilliseconds} ms\n");
+        Console.ResetColor();
     }
 
-    // FUNCIÓN DEL EJERCICIO A
-    static void ImprimirCuentaRegresiva(int numero)
+    // 1. Fuerza Bruta (Ineficiente, calcula lo mismo una y otra vez)
+    public static long FibonacciInseguro(int n)
     {
-        // 1. Caso Base: Cuando llegamos a 0, detenemos la recursión.
-        if (numero < 1) 
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("   ¡Despegue! (Caso Base Alcanzado)");
-            Console.ResetColor();
-            return;
-        }
-        
-        // 2. Antes de la recursión (Se guarda en la memoria Stack)
-        Console.WriteLine($"[APILANDO en memoria] Dejando en pausa n = {numero}");
-        
-        // 3. Llamada Recursiva
-        ImprimirCuentaRegresiva(numero - 1); 
-        
-        // 4. Después de la recursión (Se libera de la memoria Stack)
-        // NOTA: ¡Esta línea no se ejecuta hasta que el Caso Base se alcanza!
-        Console.WriteLine($"[LIBERANDO de memoria] Terminando n = {numero}");
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+        return FibonacciInseguro(n - 1) + FibonacciInseguro(n - 2);
     }
 
-    // FUNCIÓN DEL EJERCICIO B
-    static int SumarHasta(int n)
+    // 2. Memoization (Inteligente, guarda en caché)
+    public static long FibonacciPro(int n, long[] cache)
     {
-        // Caso Base
-        if (n == 1) return 1; 
+        if (n == 0) return 0;
+        if (n == 1) return 1;
         
-        // Caso Recursivo
-        return n + SumarHasta(n - 1); 
+        // ¡LA MAGIA!: Si el cálculo ya existe en el caché, devuélvelo inmediatamente
+        if (cache[n] != -1) return cache[n];
+        
+        // Si no existe, calcúlalo y GUÁRDALO en el caché para el futuro
+        cache[n] = FibonacciPro(n - 1, cache) + FibonacciPro(n - 2, cache);
+        return cache[n];
     }
 }
