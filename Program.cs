@@ -1,63 +1,62 @@
 ﻿using System;
 
-// MÓDULO 3: Clase para demostrar referencias
-public class Alumno
-{
-    public string Nombre { get; set; } = string.Empty;
-}
-
-class Clase6_Modificadores
+class Clase7_CallStack
 {
     static void Main()
     {
-        Console.WriteLine("=== MÓDULO 1: Modificador 'ref' ===");
-        int x = 10;
-        int y = 25;
-        Console.WriteLine($"Antes del intercambio: x = {x}, y = {y}");
+        Console.WriteLine("=== Anatomía de la Recursividad (Call Stack) ===\n");
         
-        // Pasamos las variables por referencia (su dirección en memoria)
-        Intercambiar(ref x, ref y);
+        // EJERCICIO A: Cuenta Regresiva Visual
+        Console.WriteLine("--- Ejercicio A: Cuenta Regresiva Visual ---");
+        ImprimirCuentaRegresiva(3);
         
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"Después del intercambio: x = {x}, y = {y}\n");
-        Console.ResetColor();
-
-        Console.WriteLine("=== MÓDULO 2: Modificador 'out' ===");
-        // 'resto' no necesita estar inicializada antes, la función la creará
-        int cociente = CalcularYValidar(17, 5, out int resto);
+        // EJERCICIO B: Suma Recursiva Segura
+        Console.WriteLine("\n--- Ejercicio B: Suma Recursiva Segura ---");
+        Console.Write("Introduce un número entero positivo para sumar hasta él: ");
         
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine($"17 / 5 = Cociente: {cociente}, Residuo: {resto}\n");
-        Console.ResetColor();
-
-        Console.WriteLine("=== MÓDULO 3: Referencias de Objetos ===");
-        Alumno alumno1 = new Alumno { Nombre = "Dany" };
-        
-        // ¡Atención! Esto NO saca fotocopia, solo comparte la dirección de memoria
-        Alumno alumno2 = alumno1; 
-        
-        Console.WriteLine($"Nombre original en alumno1: {alumno1.Nombre}");
-        Console.WriteLine("Cambiando el nombre en alumno2 a '3Treum'...");
-        alumno2.Nombre = "3Treum";
-        
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        // Cambiar alumno2 afectó a alumno1 porque son la misma entidad en el Heap
-        Console.WriteLine($"Nuevo nombre en alumno1: {alumno1.Nombre}\n");
-        Console.ResetColor();
+        // Usamos TryParse para evitar que el programa truene si metes letras
+        if (int.TryParse(Console.ReadLine(), out int numero) && numero > 0)
+        {
+            Console.WriteLine($"La suma recursiva desde 1 hasta {numero} es: {SumarHasta(numero)}");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Error: Entrada inválida. Debes ingresar un número entero mayor a 0.");
+            Console.ResetColor();
+        }
     }
 
-    // FUNCIÓN 1: Requiere 'ref' para alterar la memoria original
-    static void Intercambiar(ref int a, ref int b)
+    // FUNCIÓN DEL EJERCICIO A
+    static void ImprimirCuentaRegresiva(int numero)
     {
-        int temp = a;
-        a = b;
-        b = temp;
+        // 1. Caso Base: Cuando llegamos a 0, detenemos la recursión.
+        if (numero < 1) 
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("   ¡Despegue! (Caso Base Alcanzado)");
+            Console.ResetColor();
+            return;
+        }
+        
+        // 2. Antes de la recursión (Se guarda en la memoria Stack)
+        Console.WriteLine($"[APILANDO en memoria] Dejando en pausa n = {numero}");
+        
+        // 3. Llamada Recursiva
+        ImprimirCuentaRegresiva(numero - 1); 
+        
+        // 4. Después de la recursión (Se libera de la memoria Stack)
+        // NOTA: ¡Esta línea no se ejecuta hasta que el Caso Base se alcanza!
+        Console.WriteLine($"[LIBERANDO de memoria] Terminando n = {numero}");
     }
 
-    // FUNCIÓN 2: Requiere 'out' para obligar a devolver el residuo
-    static int CalcularYValidar(int dividendo, int divisor, out int residuo)
+    // FUNCIÓN DEL EJERCICIO B
+    static int SumarHasta(int n)
     {
-        residuo = dividendo % divisor; // Obligatorio asignarlo antes de salir
-        return dividendo / divisor;
+        // Caso Base
+        if (n == 1) return 1; 
+        
+        // Caso Recursivo
+        return n + SumarHasta(n - 1); 
     }
 }
