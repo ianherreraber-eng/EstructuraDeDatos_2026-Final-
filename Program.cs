@@ -1,55 +1,57 @@
 ﻿using System;
-using System.Numerics; 
+using System.Diagnostics; 
 
-class Clase8_Overflow
+class Clase9_Memoization
 {
     static void Main()
     {
-        Console.WriteLine("=== Demostración de Desbordamiento (Overflow) ===\n");
-        Console.WriteLine(" N | Factorial (Recursivo) | Factorial (Iterativo)");
-        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine("=== Benchmark: Fuerza Bruta vs Memoization ===\n");
+        
+        int n = 40; 
+        Stopwatch sw = new Stopwatch();
 
-        for (int i = 1; i <= 15; i++)
+        // --- MÉTODO 1: FUERZA BRUTA ---
+        Console.WriteLine($"Calculando Fibonacci({n}) con Fuerza Bruta (Espera unos segundos)...");
+        sw.Restart();
+        long resultadoInseguro = FibonacciInseguro(n);
+        sw.Stop();
+        
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"[O(2^n)] Resultado: {resultadoInseguro} | Tiempo: {sw.ElapsedMilliseconds} ms\n");
+        Console.ResetColor();
+
+        // --- MÉTODO 2: MEMOIZATION (Caché) ---
+        long[] cache = new long[n + 1];
+        for (int i = 0; i <= n; i++) 
         {
-            int resultadoRecursivo = FactorialInt(i);
-            int resultadoIterativo = FactorialIterativo(i);
-            
-            if (i >= 13) Console.ForegroundColor = ConsoleColor.Red;
-            
-            Console.WriteLine($"{i,2} | {resultadoRecursivo,21} | {resultadoIterativo,21}");
-            Console.ResetColor();
+            cache[i] = -1;
         }
 
-        Console.WriteLine("\n=== Solución Profesional con BigInteger ===");
-        
-        BigInteger numeroMasivo = 100;
-        BigInteger resultadoSeguro = FactorialProfesional(numeroMasivo);
+        Console.WriteLine($"Calculando Fibonacci({n}) con Memoization...");
+        sw.Restart();
+        long resultadoPro = FibonacciPro(n, cache);
+        sw.Stop();
         
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"\nEl factorial de 100! tiene más de 150 dígitos:");
-        Console.WriteLine(resultadoSeguro);
+        Console.WriteLine($"[O(n)]   Resultado: {resultadoPro} | Tiempo: {sw.ElapsedMilliseconds} ms\n");
         Console.ResetColor();
     }
 
-    static int FactorialInt(int n)
+    public static long FibonacciInseguro(int n)
     {
-        if (n == 0 || n == 1) return 1;
-        return n * FactorialInt(n - 1);
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+        return FibonacciInseguro(n - 1) + FibonacciInseguro(n - 2);
     }
 
-    static int FactorialIterativo(int n)
+    public static long FibonacciPro(int n, long[] cache)
     {
-        int resultado = 1;
-        for (int i = 2; i <= n; i++)
-        {
-            resultado *= i;
-        }
-        return resultado;
-    }
-
-    static BigInteger FactorialProfesional(BigInteger n)
-    {
-        if (n == 0 || n == 1) return BigInteger.One;
-        return n * FactorialProfesional(n - 1);
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+        
+        if (cache[n] != -1) return cache[n];
+        
+        cache[n] = FibonacciPro(n - 1, cache) + FibonacciPro(n - 2, cache);
+        return cache[n];
     }
 }
